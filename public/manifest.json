@@ -1,0 +1,31 @@
+{
+  "name": "Dutch Babies Green Book",
+  "short_name": "Baby Book",
+  "description": "Shared baby progress tracker inspired by the Dutch Groene Boekje",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f0fdf4",
+  "theme_color": "#22c55e",
+  "orientation": "portrait-primary",
+  "categories": ["health", "lifestyle", "family"],
+  "shortcuts": [
+    {
+      "name": "Log Feeding",
+      "short_name": "Feeding",
+      "description": "Quick log a feeding session",
+      "url": "/tracking?type=feeding"
+    },
+    {
+      "name": "Log Sleep",
+      "short_name": "Sleep",
+      "description": "Quick log a sleep session",
+      "url": "/tracking?type=sleep"
+    },
+    {
+      "name": "Log Diaper",
+      "short_name": "Diaper",
+      "description": "Quick log a diaper change",
+      "url": "/tracking?type=diaper"
+    }
+  ]
+}
