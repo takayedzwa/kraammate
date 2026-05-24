@@ -102,7 +102,7 @@ export function useBabies(userId: string) {
     const client = createClientInstance();
 
     // 1. Create the baby record
-    const { data: baby, error: babyError } = await client
+    const { data: baby, error: babyError } = await (client as any)
       .from("babies")
       .insert({ ...babyData, owner_id: userId })
       .select()
@@ -114,7 +114,7 @@ export function useBabies(userId: string) {
     }
 
     // 2. Create default vaccination schedule (was done by trigger, now in code)
-    const { error: vaxError } = await client
+    const { error: vaxError } = await (client as any)
       .from("vaccination_schedule")
       .insert([
         { baby_id: baby.id, name: "DKTP-Hib-HepB (1)", description: "Diphtheria, Tetanus, Pertussis, Polio, Hib, Hepatitis B", recommended_age_weeks: 6, due_date: new Date(new Date(babyData.date_of_birth).getTime() + 6 * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], status: 'scheduled' },

@@ -8,6 +8,12 @@ export type Json =
 
 export type UserRole = 'parent' | 'kraamzorger' | 'family';
 export type CaregiverPermission = 'view_only' | 'view_and_edit';
+export type KraamzorgerVerificationStatus = 'pending' | 'verified' | 'suspended';
+export type BookingStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
+export type VisitStatus = 'in_progress' | 'completed' | 'pending_approval' | 'approved' | 'disputed';
+export type ObservationType = 'feeding' | 'sleep' | 'wellness' | 'health_concern' | 'recommendation' | 'development' | 'parent_support';
+export type ObservationSeverity = 'normal' | 'watch' | 'concern' | 'urgent';
+export type WorkSummaryStatus = 'pending' | 'approved' | 'paid';
 export type FeedingType = 'breastfeeding' | 'bottle' | 'pumping' | 'mixed';
 export type DiaperType = 'wet' | 'dirty' | 'mixed';
 export type SleepType = 'nap' | 'night_sleep';
@@ -16,9 +22,393 @@ export type VaccinationStatus = 'scheduled' | 'completed' | 'cancelled' | 'misse
 export type NotificationType = 'feeding_reminder' | 'medication_reminder' | 'appointment_reminder' | 'sleep_reminder' | 'vaccination_reminder';
 export type ActivityAction = 'created' | 'updated' | 'deleted' | 'viewed';
 
+export interface KraamzorgerCertification {
+  name: string;
+  date: string;
+  issuing_body: string;
+  certificate_url?: string;
+}
+
+export interface KraamzorgerServiceRegion {
+  postcode: string;
+  radius_km: number;
+}
+
+export interface KraamzorgerSpecialization {
+  type: string;
+  description?: string;
+}
+
 export interface Database {
   public: {
     Tables: {
+      kraamzorger_profiles: {
+        Row: {
+          id: string;
+          bio: string | null;
+          certifications: KraamzorgerCertification[];
+          languages: string[];
+          years_experience: number | null;
+          service_regions: KraamzorgerServiceRegion[];
+          max_simultaneous_families: number | null;
+          night_care_available: boolean | null;
+          verification_status: KraamzorgerVerificationStatus;
+          verification_date: string | null;
+          hourly_rate: number | null;
+          profile_video_url: string | null;
+          certificate_urls: string[] | null;
+          specializations: string[] | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          bio?: string | null;
+          certifications?: KraamzorgerCertification[];
+          languages?: string[];
+          years_experience?: number | null;
+          service_regions?: KraamzorgerServiceRegion[];
+          max_simultaneous_families?: number | null;
+          night_care_available?: boolean | null;
+          verification_status?: KraamzorgerVerificationStatus;
+          verification_date?: string | null;
+          hourly_rate?: number | null;
+          profile_video_url?: string | null;
+          certificate_urls?: string[] | null;
+          specializations?: string[] | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          bio?: string | null;
+          certifications?: KraamzorgerCertification[];
+          languages?: string[];
+          years_experience?: number | null;
+          service_regions?: KraamzorgerServiceRegion[];
+          max_simultaneous_families?: number | null;
+          night_care_available?: boolean | null;
+          verification_status?: KraamzorgerVerificationStatus;
+          verification_date?: string | null;
+          hourly_rate?: number | null;
+          profile_video_url?: string | null;
+          certificate_urls?: string[] | null;
+          specializations?: string[] | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      kraamzorger_availability: {
+        Row: {
+          id: string;
+          kraamzorger_id: string;
+          day_of_week: number | null;
+          specific_date: string | null;
+          start_time: string;
+          end_time: string;
+          is_available: boolean | null;
+          is_vacation: boolean | null;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          kraamzorger_id: string;
+          day_of_week?: number | null;
+          specific_date?: string | null;
+          start_time: string;
+          end_time: string;
+          is_available?: boolean | null;
+          is_vacation?: boolean | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          kraamzorger_id?: string;
+          day_of_week?: number | null;
+          specific_date?: string | null;
+          start_time?: string;
+          end_time?: string;
+          is_available?: boolean | null;
+          is_vacation?: boolean | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+      };
+      kraamzorger_bookings: {
+        Row: {
+          id: string;
+          kraamzorger_id: string;
+          parent_id: string;
+          baby_id: string;
+          start_date: string;
+          end_date: string;
+          total_hours_estimated: number | null;
+          hourly_rate: number | null;
+          status: BookingStatus;
+          parent_notes: string | null;
+          kraamzorger_notes: string | null;
+          rejection_reason: string | null;
+          created_at: string;
+          updated_at: string;
+          accepted_at: string | null;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          kraamzorger_id: string;
+          parent_id: string;
+          baby_id: string;
+          start_date: string;
+          end_date: string;
+          total_hours_estimated?: number | null;
+          hourly_rate?: number | null;
+          status?: BookingStatus;
+          parent_notes?: string | null;
+          kraamzorger_notes?: string | null;
+          rejection_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          accepted_at?: string | null;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          kraamzorger_id?: string;
+          parent_id?: string;
+          baby_id?: string;
+          start_date?: string;
+          end_date?: string;
+          total_hours_estimated?: number | null;
+          hourly_rate?: number | null;
+          status?: BookingStatus;
+          parent_notes?: string | null;
+          kraamzorger_notes?: string | null;
+          rejection_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          accepted_at?: string | null;
+          completed_at?: string | null;
+        };
+      };
+      kraamzorger_visits: {
+        Row: {
+          id: string;
+          booking_id: string;
+          kraamzorger_id: string;
+          baby_id: string;
+          visit_date: string;
+          start_time: string;
+          end_time: string | null;
+          duration_minutes: number | null;
+          travel_time_minutes: number | null;
+          activities_performed: Json | null;
+          notes: string | null;
+          status: VisitStatus;
+          parent_approved_at: string | null;
+          parent_signature: string | null;
+          dispute_reason: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          booking_id: string;
+          kraamzorger_id: string;
+          baby_id: string;
+          visit_date: string;
+          start_time: string;
+          end_time?: string | null;
+          duration_minutes?: number | null;
+          travel_time_minutes?: number | null;
+          activities_performed?: Json | null;
+          notes?: string | null;
+          status?: VisitStatus;
+          parent_approved_at?: string | null;
+          parent_signature?: string | null;
+          dispute_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          booking_id?: string;
+          kraamzorger_id?: string;
+          baby_id?: string;
+          visit_date?: string;
+          start_time?: string;
+          end_time?: string | null;
+          duration_minutes?: number | null;
+          travel_time_minutes?: number | null;
+          activities_performed?: Json | null;
+          notes?: string | null;
+          status?: VisitStatus;
+          parent_approved_at?: string | null;
+          parent_signature?: string | null;
+          dispute_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      care_observations: {
+        Row: {
+          id: string;
+          visit_id: string | null;
+          kraamzorger_id: string;
+          baby_id: string;
+          observation_type: ObservationType;
+          title: string;
+          content: string;
+          severity: ObservationSeverity;
+          requires_followup: boolean | null;
+          followup_date: string | null;
+          parent_acknowledged_at: string | null;
+          metadata: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          visit_id?: string | null;
+          kraamzorger_id: string;
+          baby_id: string;
+          observation_type: ObservationType;
+          title: string;
+          content: string;
+          severity?: ObservationSeverity;
+          requires_followup?: boolean | null;
+          followup_date?: string | null;
+          parent_acknowledged_at?: string | null;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          visit_id?: string | null;
+          kraamzorger_id?: string;
+          baby_id?: string;
+          observation_type?: ObservationType;
+          title?: string;
+          content?: string;
+          severity?: ObservationSeverity;
+          requires_followup?: boolean | null;
+          followup_date?: string | null;
+          parent_acknowledged_at?: string | null;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+      };
+      kraamzorger_reviews: {
+        Row: {
+          id: string;
+          booking_id: string;
+          parent_id: string;
+          kraamzorger_id: string;
+          rating: number;
+          review_text: string | null;
+          ratings_breakdown: Json | null;
+          is_public: boolean | null;
+          parent_response: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          booking_id: string;
+          parent_id: string;
+          kraamzorger_id: string;
+          rating: number;
+          review_text?: string | null;
+          ratings_breakdown?: Json | null;
+          is_public?: boolean | null;
+          parent_response?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          booking_id?: string;
+          parent_id?: string;
+          kraamzorger_id?: string;
+          rating?: number;
+          review_text?: string | null;
+          ratings_breakdown?: Json | null;
+          is_public?: boolean | null;
+          parent_response?: string | null;
+          created_at?: string;
+        };
+      };
+      kraamzorger_messages: {
+        Row: {
+          id: string;
+          booking_id: string;
+          sender_id: string;
+          message_text: string;
+          is_read: boolean;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          booking_id: string;
+          sender_id: string;
+          message_text: string;
+          is_read?: boolean;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          booking_id?: string;
+          sender_id?: string;
+          message_text?: string;
+          is_read?: boolean;
+          read_at?: string | null;
+          created_at?: string;
+        };
+      };
+      kraamzorger_work_summary: {
+        Row: {
+          id: string;
+          kraamzorger_id: string;
+          week_start: string;
+          week_end: string;
+          total_hours: number | null;
+          total_visits: number | null;
+          total_families: number | null;
+          total_travel_hours: number | null;
+          status: WorkSummaryStatus;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kraamzorger_id: string;
+          week_start: string;
+          week_end: string;
+          total_hours?: number | null;
+          total_visits?: number | null;
+          total_families?: number | null;
+          total_travel_hours?: number | null;
+          status?: WorkSummaryStatus;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kraamzorger_id?: string;
+          week_start?: string;
+          week_end?: string;
+          total_hours?: number | null;
+          total_visits?: number | null;
+          total_families?: number | null;
+          total_travel_hours?: number | null;
+          status?: WorkSummaryStatus;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       profiles: {
         Row: {
           id: string;
