@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Baby, Mail, Lock, User, Globe } from "lucide-react";
+import { Baby, Mail, Lock, User, Globe, Heart, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ export default function SignUpPage() {
   const { signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<"parent" | "kraamzorger">("parent");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -26,13 +27,27 @@ export default function SignUpPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signUp(formData.email, formData.password, formData.name);
-      toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
-        variant: "success",
-      });
-      router.push("/auth/verify");
+      const result = await signUp(formData.email, formData.password, formData.name, selectedRole);
+
+      // Check if user is already confirmed (email confirmations disabled)
+      if (result.user?.email_confirmed_at) {
+        // User is already confirmed - sign them in and redirect
+        toast({
+          title: "Account created!",
+          description: "Redirecting to your dashboard...",
+          variant: "success",
+        });
+        // The auth callback will handle profile creation since user is confirmed
+        router.push(selectedRole === "kraamzorger" ? "/kraamzorger/dashboard" : "/dashboard");
+      } else {
+        // Email confirmation required
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account before signing in.",
+          variant: "success",
+        });
+        router.push("/auth/verify?email=" + encodeURIComponent(formData.email));
+      }
     } catch (error) {
       toast({
         title: "Sign up failed",
@@ -84,6 +99,39 @@ export default function SignUpPage() {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-4 bg-white text-baby-500">Or continue with</span>
+            </div>
+          </div>
+
+          {/* Role Selection */}
+          <div className="space-y-2">
+            <Label>I am a</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedRole("parent")}
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  selectedRole === "parent"
+                    ? "border-baby-500 bg-baby-50 text-baby-700"
+                    : "border-baby-200 hover:border-baby-300"
+                }`}
+              >
+                <Heart className={`h-6 w-6 ${selectedRole === "parent" ? "text-baby-500" : "text-baby-400"}`} />
+                <span className="font-medium text-sm">Parent</span>
+                <span className="text-xs text-baby-500 text-center">Track my baby&apos;s growth</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole("kraamzorger")}
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  selectedRole === "kraamzorger"
+                    ? "border-baby-500 bg-baby-50 text-baby-700"
+                    : "border-baby-200 hover:border-baby-300"
+                }`}
+              >
+                <Stethoscope className={`h-6 w-6 ${selectedRole === "kraamzorger" ? "text-baby-500" : "text-baby-400"}`} />
+                <span className="font-medium text-sm">Kraamzorger</span>
+                <span className="text-xs text-baby-500 text-center">Provide professional care</span>
+              </button>
             </div>
           </div>
 

@@ -151,31 +151,46 @@ export function useAuth() {
     return { session: newSession, user: authData.user };
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, role: "parent" | "kraamzorger" = "parent") => {
     const { data, error } = await createClientInstance().auth.signUp({
       email,
       password,
       options: {
         data: {
           full_name: fullName,
+          role: role,
         },
       },
     });
     if (error) throw error;
 
-    // Create profile after successful signup
-    if (data.user) {
-      const { error: profileError } = await createClientInstance()
-        .from("profiles")
-        .insert({
-          id: data.user.id,
-          email: email,
-          full_name: fullName,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
+    // If email is already confirmed (auto-confirm enabled), create profile immediately via API
+    if (data.user?.email_confirmed_at) {
+      console.log("Email auto-confirmed, creating profile immediately for:", data.user.id);
 
-      if (profileError) throw profileError;
+      // Call server-side API to create profile with service role
+      const response = await fetch("/api/auth/create-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: data.user.id,
+          email,
+          fullName,
+          role,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error("Profile creation failed:", result.error);
+        throw new Error(result.error || "Failed to create profile");
+      }
+
+      console.log("Profile created successfully, waiting for auth state to propagate...");
+
+      // Small delay to ensure auth state propagates before redirect
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     return data;
